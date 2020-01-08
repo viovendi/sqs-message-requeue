@@ -1,6 +1,6 @@
 # SQS Message Requeue
 
-Python Lambda function for handling SQS Messages.
+Python function for handling SQS Messages.
 
 Heavily inspired by https://github.com/tomelliff/sqs-dead-letter-requeue
 
