@@ -24,6 +24,20 @@ def requeueAllFromDeadLetter():
     deleteMessage = moveMessage
     return source_queue_name, destination_queue_name, moveMessage, deleteMessage
 
+def requeueAllFromDeadLetterInvitationList():
+    source_queue_name = 'be-production2-invitation-list-messages-deadletter-queue'
+    destination_queue_name = 'be-production2-invitation-list-messages-queue'
+    moveMessage = everyMessage
+    deleteMessage = moveMessage
+    return source_queue_name, destination_queue_name, moveMessage, deleteMessage
+
+def requeueAllFromDeadLetterEAS():
+    source_queue_name = 'eas-production2-dead-letter-queue'
+    destination_queue_name = 'eas-production2-queue'
+    moveMessage = everyMessage
+    deleteMessage = moveMessage
+    return source_queue_name, destination_queue_name, moveMessage, deleteMessage
+
 def requeueAllFromDeadLetterStaging1():
     source_queue_name = 'worker-staging1-dead-letter-queue'
     destination_queue_name = 'worker-staging1-queue'
@@ -45,6 +59,13 @@ def requeueOnlyWebhookPushFromDeadLetter():
     deleteMessage = moveMessage
     return source_queue_name, destination_queue_name, moveMessage, deleteMessage
 
+def requeueNonWebhookPushFromDeadLetter():
+    source_queue_name = 'worker-production2-dead-letter-queue'
+    destination_queue_name = 'worker-production2-queue'
+    moveMessage = onlyNonWebhookMessages
+    deleteMessage = moveMessage
+    return source_queue_name, destination_queue_name, moveMessage, deleteMessage
+
 def deleteRegenerateFromDeadLetter():
     source_queue_name = 'worker-production2-dead-letter-queue'
     destination_queue_name = 'worker-production2-queue'
@@ -59,10 +80,28 @@ def moveRegenerateFromWorkerQueueToDeadLetter():
     deleteMessage = moveMessage
     return source_queue_name, destination_queue_name, moveMessage, deleteMessage
 
+def moveWebhookFromWorkerQueueToDeadLetter():
+    source_queue_name = 'worker-production2-queue'
+    destination_queue_name = 'worker-production2-dead-letter-queue'
+    moveMessage = onlyWebhookMessages
+    deleteMessage = moveMessage
+    return source_queue_name, destination_queue_name, moveMessage, deleteMessage
+
+def deleteWebhookFromDeadLetter():
+    source_queue_name = 'worker-production2-dead-letter-queue'
+    destination_queue_name = 'worker-production2-queue'
+    moveMessage = noMessage
+    deleteMessage = onlyWebhookMessages
+    return source_queue_name, destination_queue_name, moveMessage, deleteMessage
+
 
 #initialize = moveRegenerateFromWorkerQueueToDeadLetter
+#initialize = moveWebhookFromWorkerQueueToDeadLetter
+#initialize = deleteWebhookFromDeadLetter
 initialize = requeueAllFromDeadLetter
-
+#initialize = requeueNonWebhookPushFromDeadLetter
+#initialize = requeueAllFromDeadLetterInvitationList
+#initialize = requeueAllFromDeadLetterEAS
 
 
 def noMessage(message):
@@ -76,6 +115,12 @@ def onlyWebhookMessages(message):
     if 'task' in message_json and message_json['task'] == 'webhook/push':
         return True
     return False
+
+def onlyNonWebhookMessages(message):
+    message_json = json.loads(message.body)
+    if 'task' in message_json and message_json['task'] == 'webhook/push':
+        return False
+    return True
 
 def onlyRegenerateMessages(message):
     message_json = json.loads(message.body)
